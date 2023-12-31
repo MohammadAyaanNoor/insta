@@ -8,21 +8,22 @@ const userSchema = mongoose.Schema({
   fullname:String,
   DOB:String,
   password:String,
-  followers:{
-   ref:mongoose.Schema.Types.ObjectId,
-   type:[]
-  },
-  following:{
-    ref:mongoose.Schema.Types.ObjectId,
-    type:[]
-   },
+  followers:[{
+   type:mongoose.Schema.Types.ObjectId,
+   ref:"user"
+  }],
+  following:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"user"
+   }],
    bio:String,
   likes:{
     type:[]
   },
-  posts:{
-    type:[]
-  },
+  posts:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"post"
+  }],
   profileImage:{
     type:String,
     default:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIUhL2MIHICJzahAwO51QWQf2DOBezgf3YGA&usqp=CAU"

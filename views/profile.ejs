@@ -33,13 +33,14 @@
       <div class="px-6 mt-5">
         <a class="px-3 py-2 bg-zinc-800 text-xs rounded-md" href="/edit">Edit Profile</a>
       </div>
-      <div class="posts w-full flex justify-between gap-1 py-2 mt-5 flex-wrap">
-        <div class="post w-[32.5%] h-32 bg-sky-100"></div>
-        <div class="post w-[32.5%] h-32 bg-sky-100"></div>
-        <div class="post w-[32.5%] h-32 bg-sky-100"></div>
-        <div class="post w-[32.5%] h-32 bg-sky-100"></div>
-        <div class="post w-[32.5%] h-32 bg-sky-100"></div>
-        <div class="post w-[32.5%] h-32 bg-sky-100"></div>
+      <div class="posts w-full flex items-center  gap-1 py-2 mt-5 flex-wrap">
+        <%loggedinUser.posts.forEach(function(elem){%>
+          <div class="post w-[32.5%] h-32">
+            <img style="height: 100%;width: 100%; object-fit: cover;" src="/images/uploads/<%=elem.image%>" alt="">
+          </div>
+        
+        <%})%>
+        
       </div>
   </div>
 <% include ./partials/footer.ejs %>
