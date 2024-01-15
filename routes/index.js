@@ -17,9 +17,26 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/feed', isloggedin, async function(req, res) {
-  // var loggedinUser = await usermodel.findOne({username:req.session.passport.user})
-  res.render('feed', {footer: true});
+  var loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  const posts = await postmodel.find().populate('user')
+
+
+  res.render('feed', {footer: true,posts,loggedinUser});
 });
+router.get("/likePost/:postId",isloggedin, async function(req,res,next){
+  const likedPost = await postmodel.findById(req.params.postId) 
+  const liked = likedPost.likes.includes(req.user._id)
+
+  if(liked){
+    likedPost.likes.splice(likedPost.likes.indexOf(req.user._id),1)
+  }else{
+    likedPost.likes.push(req.user._id)
+  }
+  await likedPost.save()
+
+  res.send("responce recorded")
+  
+})
 
 router.get('/profile', isloggedin, async function(req, res) {
   var loggedinUser = await usermodel.findOne({username:req.session.passport.user}).populate('posts')
