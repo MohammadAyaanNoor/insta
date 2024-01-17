@@ -1,0 +1,35 @@
+<% include ./partials/header.ejs %>
+<div class="flex flex-col w-full h-screen bg-black" >
+    <div class="w-full bg-zinc-900 py-4">
+        <h3 class="text-center text-white capitalize font-medium text-lg">Comments</h3>
+    </div>
+    <div class="h-[79.5%] w-full">
+        <%comments.forEach(function(elem){%>
+            <div class="chat chat-start">
+                <div class="chat-header">
+                  <%=elem.user.username%>
+                  <time class="text-xs opacity-50">2 hours ago</time>
+                </div>
+                <div class="chat-bubble"><%=elem.comment%></div>
+                <!-- <div class="chat-footer opacity-50">
+                  Seen
+                </div> -->
+                
+              </div>
+             
+        <%})%>
+    </div>
+    <div>
+        <form class="flex justify-between items-center" onclick="addcomment()"  method="post">
+            <input class="px-3 mt-1  py-4 border-2 border-zinc-800 rounded-md block w-[80%] bg-zinc-900" type="text" placeholder="Add a comment" name="comment">
+            <input class="w-[20%] px-2 py-4 bg-blue-500 rounded-md font-semibold text-lg" type="submit" value="Post">
+        </form>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.5/axios.min.js" integrity="sha512-TjBzDQIDnc6pWyeM1bhMnDxtWH0QpOXMcVooglXrali/Tj7W569/wd4E8EDjk1CwOAOPSJon1VfcEt1BI4xIrA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+   async function addcomment(){
+      const resp = await axios.post(`/postcomment`)
+    }
+</script>
+<% include ./partials/footer.ejs %>

@@ -24,6 +24,10 @@ const userSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref:"post"
   }],
+  comments:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref:"comment"
+  }],
   profileImage:{
     type:String,
     default:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIUhL2MIHICJzahAwO51QWQf2DOBezgf3YGA&usqp=CAU"

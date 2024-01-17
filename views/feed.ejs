@@ -84,7 +84,7 @@
           <div class="options w-full px-4 flex justify-between items-center text-[1.4rem]">
             <div class="flex gap-3 mt-2">
               <i onclick="likePost(this,'<%=elem._id%>')" class="ri-heart-3-<%= elem.likes.includes(loggedinUser._id)?'fill':'line'%>"></i>
-              <i class="ri-chat-3-line"></i>
+              <a href="/comment"><i class="ri-chat-3-line"></i></a>
               <i class="ri-share-circle-line"></i>
             </div>
             <i class="ri-bookmark-line"></i>

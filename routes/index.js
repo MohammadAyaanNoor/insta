@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const usermodel = require('./users')
 const postmodel = require('./posts')
+const commentmodel = require('./comments')
 var passport = require('passport')
 var localStrategy = require('passport-local');
 const upload = require('./multer');
@@ -49,6 +50,20 @@ router.get('/search', isloggedin, function(req, res) {
 
 router.get('/edit', isloggedin, function(req, res) {
   res.render('edit', {footer: true});
+});
+router.get('/comment', isloggedin, async function(req, res) {
+  var loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  const comments = await commentmodel.find().populate('user')
+  res.render('comment', {footer: true,loggedinUser,comments});
+});
+router.post('/postcomment', isloggedin, async function(req, res) {
+  const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  const comment = await commentmodel.create({
+    user:loggedinUser._id,
+    comment:req.body.comment
+  })
+  loggedinUser.comments.push(comment._id)
+  await loggedinUser.save()
 });
 
 router.get('/upload', isloggedin, function(req, res) {
