@@ -5,23 +5,42 @@
         <input class="ml-1 w-full bg-zinc-900 outline-none text-zinc-400" type="text" placeholder="search username">
     </div>
     <div class="users">
-        <a href="/profile" class="outline-none">
-            <div class="text-white flex items-center gap-2 mt-5">
-                <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100"></div>
-                <div class="text">
-                    <h3>iamharshvandanasharma</h3>
-                    <h4 class="text-xs opacity-30 leading-none">Harsh Vandana Sharma</h4>
-                </div>
-            </div>            
-        </a>
+       
 
-        <div class="text-white flex items-center gap-2 mt-5">
-            <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100"></div>
-            <div class="text">
-                <h3>iamharshvandanasharma</h3>
-                <h4 class="text-xs opacity-30 leading-none">Harsh Vandana Sharma</h4>
-            </div>
-        </div>
+       
     </div>
   </div>
+  <script>
+    var input = document.querySelector("input")
+    input.addEventListener("input",function(e){
+        if(input.value !== ' '){
+            fetch(`/search/${input.value}`)
+            .then(raw => raw.json())
+            .then(result =>{
+                let clutter = ""
+                result.forEach(function(item){
+                    clutter += ` <a href="/profile/${item.username}" class="outline-none">
+            <div class="text-white flex items-center gap-2 mt-5">
+                <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100">
+                    <img src="./images/uploads/${item.profileImage}" alt="">
+                    </div>
+                <div class="text">
+                    <h3>${item.username}</h3>
+                    <h4 class="text-xs opacity-30 leading-none">${item.fullname}</h4>
+                </div>
+            </div>            
+        </a>`
+                })
+                document.querySelector(".users").innerHTML = clutter
+            })
+        }
+    })
+    fetch(`/search/${input}`)
+    .then(raw => raw.json())
+    .then(response =>{
+
+    }
+    )
+
+  </script>
 <% include ./partials/footer.ejs %>

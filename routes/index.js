@@ -24,18 +24,20 @@ router.get('/feed', isloggedin, async function(req, res) {
 
   res.render('feed', {footer: true,posts,loggedinUser});
 });
-router.get("/likePost/:postId",isloggedin, async function(req,res,next){
-  const likedPost = await postmodel.findById(req.params.postId) 
-  const liked = likedPost.likes.includes(req.user._id)
+router.get("/like/:postId",isloggedin, async function(req,res,next){
+  const post = await postmodel.findOne({_id:req.params.postId}) 
+  const loggedinUser =  await usermodel.findOne({username:req.session.passport.user})
+  
 
-  if(liked){
-    likedPost.likes.splice(likedPost.likes.indexOf(req.user._id),1)
+  if(post.likes.indexOf(loggedinUser._id) !== -1){
+    post.likes.splice(post.likes.indexOf(loggedinUser._id),1)
   }else{
-    likedPost.likes.push(req.user._id)
+    post.likes.push(loggedinUser._id)
   }
-  await likedPost.save()
+  await post.save()
+  res.json(post)
 
-  res.send("responce recorded")
+  
   
 })
 
@@ -47,24 +49,64 @@ router.get('/profile', isloggedin, async function(req, res) {
 router.get('/search', isloggedin, function(req, res) {
   res.render('search', {footer: true});
 });
+router.get("/search/:username",isloggedin, async function(req,res){
+  const searchTerm = `^${req.params.username}`;
+  const regex = new RegExp(searchTerm);
+
+  let users = await usermodel.find({ username: { $regex: regex } });
+
+  res.json(users)
+} )
+router.get('/profile/:user',isloggedin, async (req, res) => {
+  let loggedinUser = await usermodel.findOne({ username: req.session.passport.user });
+
+  if (loggedinUser.username === req.params.user) {
+    res.redirect("/profile");
+  }
+
+  let userprofile = await usermodel
+    .findOne({ username: req.params.user })
+    .populate("posts");
+
+  res.render("userprofile", { footer: true, userprofile, loggedinUser });
+});
+router.get('/follow/:userid',isloggedin, async (req, res) => {
+  const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  const followhonewaalauser = await usermodel.findOne({_id:req.params.userid})
+
+  if(loggedinUser.following.indexOf(followhonewaalauser._id) === -1){
+    loggedinUser.following.push(followhonewaalauser._id)
+    followhonewaalauser.followers.push(loggedinUser._id)
+  }
+  else{
+    loggedinUser.following.splice(loggedinUser.following.indexOf(followhonewaalauser._id),1)
+    followhonewaalauser.followers.splice(followhonewaalauser.followers.indexOf(loggedinUser._id),1)
+  }
+
+  await loggedinUser.save()
+  await followhonewaalauser.save()
+  
+  res.redirect('back')
+});
+
 
 router.get('/edit', isloggedin, function(req, res) {
   res.render('edit', {footer: true});
 });
-router.get('/comment', isloggedin, async function(req, res) {
-  var loggedinUser = await usermodel.findOne({username:req.session.passport.user})
-  const comments = await commentmodel.find().populate('user')
-  res.render('comment', {footer: true,loggedinUser,comments});
-});
-router.post('/postcomment', isloggedin, async function(req, res) {
-  const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
-  const comment = await commentmodel.create({
-    user:loggedinUser._id,
-    comment:req.body.comment
-  })
-  loggedinUser.comments.push(comment._id)
-  await loggedinUser.save()
-});
+// router.get('/comment', isloggedin, async function(req, res) {
+//   var loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+//   const comments = await commentmodel.find().populate('user')
+//   res.render('comment', {footer: true,loggedinUser,comments});
+// });
+// router.post('/postcomment', isloggedin, async function(req, res) {
+//   const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+//   const comment = await commentmodel.create({
+//     user:loggedinUser._id,
+//     comment:req.body.comment
+//   })
+//   loggedinUser.comments.push(comment._id)
+//   await loggedinUser.save()
+// });
 
 router.get('/upload', isloggedin, function(req, res) {
   res.render('upload', {footer: true});
