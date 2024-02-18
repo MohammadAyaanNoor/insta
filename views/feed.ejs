@@ -74,7 +74,9 @@
       <%posts.reverse().forEach(function(elem){%>
         <div class="post mt-10 w-full min-h-[50vh]">
           <div class="title px-4 flex items-center gap-2">
-            <div class="w-[8vw] h-[8vw] bg-sky-100 rounded-full"></div>
+            <div class="w-[8vw] h-[8vw] bg-sky-100 rounded-full overflow-hidden">
+              <img class="w-full h-full object-cover" src="/images/uploads/<%= elem.user.profileImage %>" alt="">
+            </div>
             <h4 class="text-sm"><%=elem.user.username%></h4>
             <h6 class="text-xs opacity-30">1d</h6>
           </div>
@@ -91,7 +93,11 @@
               <a href="/comment"><i class="ri-chat-3-line"></i></a>
               <i class="ri-share-circle-line"></i>
             </div>
-            <i class="ri-bookmark-line"></i>
+            <% if(elem.user.saved.indexOf(elem.id)===-1){ %>
+              <i data-postid="<%= elem.id %>" class="bookmark ri-bookmark-line"></i>
+              <% } else { %>
+                <i data-postid="<%= elem.id %>" class="bookmark ri-bookmark-fill text-zinc-100"></i>
+                <% } %>
           </div>
           <h3  class="likeval px-4 mt-2 text-sm leading-none tracking-tight"><%=elem.likes.length%> likes</h3>
           <h2 class="text-white font-light text-sm mt-2"><span class="font-semibold pl-4 pr-2"><%=elem.user.username%></span><%=elem.caption%></h2>
@@ -149,6 +155,23 @@
               dets.target.parentNode.removeChild(icon);
             }
           })
+    }
+    else if(dets.target.classList.contains('bookmark')){
+      var id = dets.target.dataset.postid;
+      fetch(`/bookmark/${id}`)
+      .then(raw => raw.json())
+      .then(result=>{
+        if (!dets.target.classList.contains("ri-bookmark-line")) {
+                dets.target.classList.remove("ri-bookmark-fill", "text-zinc-100");
+                dets.target.classList.add("ri-bookmark-line")
+              }
+              else {
+                dets.target.classList.remove("ri-bookmark-line")
+                dets.target.classList.add("ri-bookmark-fill", "text-zinc-100")
+              }
+
+      })
+      
     }
     
    })

@@ -7,13 +7,14 @@
     <div class="users">
        
 
-       
+
     </div>
   </div>
   <script>
     var input = document.querySelector("input")
+    
     input.addEventListener("input",function(e){
-        if(input.value !== ' '){
+        if(input.value !== ''){
             fetch(`/search/${input.value}`)
             .then(raw => raw.json())
             .then(result =>{
@@ -21,8 +22,8 @@
                 result.forEach(function(item){
                     clutter += ` <a href="/profile/${item.username}" class="outline-none">
             <div class="text-white flex items-center gap-2 mt-5">
-                <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100">
-                    <img src="./images/uploads/${item.profileImage}" alt="">
+                <div class="image w-[11vw] h-[11vw] rounded-full bg-sky-100 overflow-hidden">
+                    <img style="width: 100%;height: 100%; object-fit: cover;" src="./images/uploads/${item.profileImage}" alt="">
                     </div>
                 <div class="text">
                     <h3>${item.username}</h3>

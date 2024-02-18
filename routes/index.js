@@ -47,7 +47,8 @@ router.get('/profile', isloggedin, async function(req, res) {
 });
 
 router.get('/search', isloggedin, function(req, res) {
-  res.render('search', {footer: true});
+  const loggedinUser = req.user
+  res.render('search', {footer: true,loggedinUser});
 });
 router.get("/search/:username",isloggedin, async function(req,res){
   const searchTerm = `^${req.params.username}`;
@@ -88,10 +89,37 @@ router.get('/follow/:userid',isloggedin, async (req, res) => {
   
   res.redirect('back')
 });
+router.get('/bookmark/:postid', isloggedin, async (req, res) => {
+  const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  if(loggedinUser.saved.indexOf(req.params.postid) === -1){
+    loggedinUser.saved.push(req.params.postid)
+  }
+  else{
+    loggedinUser.saved.splice(loggedinUser.saved.indexOf(req.params.postid),1)
+  }
+
+  await loggedinUser.save()
+  res.status(200).json(loggedinUser)
+});
 
 
-router.get('/edit', isloggedin, function(req, res) {
-  res.render('edit', {footer: true});
+router.get('/edit', isloggedin, async function(req, res) {
+  const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  res.render('edit', {footer: true,loggedinUser});
+});
+router.post('/update',isloggedin,async (req, res) => {
+  const loggedinUser = await usermodel.findOneAndUpdate(
+    { username: req.session.passport.user },{
+    username:req.body.username,
+    fullname:req.body.name,
+    bio:req.body.bio
+  },{ new: true })
+
+  req.login(loggedinUser, function (err) {
+    if (err) throw err;
+    res.redirect("/profile");
+  });
+
 });
 // router.get('/comment', isloggedin, async function(req, res) {
 //   var loggedinUser = await usermodel.findOne({username:req.session.passport.user})
@@ -109,9 +137,21 @@ router.get('/edit', isloggedin, function(req, res) {
 // });
 
 router.get('/upload', isloggedin, function(req, res) {
-  res.render('upload', {footer: true});
+  const loggedinUser = req.user
+  res.render('upload', {footer: true,loggedinUser});
 });
-router.post('/upload', isloggedin, upload.single('file'), async function(req, res) {
+router.post('/upload',isloggedin,upload.single('file'),async (req,res)=>{
+  // if(!req.file){
+  //   return res.status(404).send("no files were given")
+  // }
+  const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  loggedinUser.profileImage = req.file.filename
+
+  await loggedinUser.save()
+  res.redirect('/edit')
+})
+
+router.post('/post', isloggedin, upload.single('file'), async function(req, res) {
   if(!req.file){
     return res.status(404).send("no files were given")
   }
