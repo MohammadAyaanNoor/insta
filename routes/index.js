@@ -89,6 +89,36 @@ router.get('/follow/:userid',isloggedin, async (req, res) => {
   
   res.redirect('back')
 });
+router.get('/followers',isloggedin, async (req, res) => {
+  const followers = await usermodel.findOne({username:req.session.passport.user}).populate('followers')
+  res.render('followers',{followers})
+});
+router.get('/following',isloggedin, async (req, res) => {
+  const following = await usermodel.findOne({username:req.session.passport.user}).populate('following')
+  res.render('following',{following})
+});
+router.get('/removeFollowing/:userid',isloggedin,async(req,res)=>{
+  const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  const removeUser = await usermodel.findOne({_id:req.params.userid})
+
+  loggedinUser.following.splice(loggedinUser.following.indexOf(removeUser._id),1)
+  removeUser.followers.splice(removeUser.followers.indexOf(loggedinUser._id),1)
+
+  await loggedinUser.save()
+  await removeUser.save()
+  res.redirect('/following')
+})
+router.get('/removeFollower/:userid',isloggedin,async(req,res)=>{
+  const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  const removeUser = await usermodel.findOne({_id:req.params.userid})
+
+  loggedinUser.followers.splice(loggedinUser.followers.indexOf(removeUser._id),1)
+  removeUser.following.splice(removeUser.following.indexOf(loggedinUser._id),1)
+
+  await loggedinUser.save()
+  await removeUser.save()
+  res.redirect('/followers')
+})
 router.get('/bookmark/:postid', isloggedin, async (req, res) => {
   const loggedinUser = await usermodel.findOne({username:req.session.passport.user})
   if(loggedinUser.saved.indexOf(req.params.postid) === -1){
