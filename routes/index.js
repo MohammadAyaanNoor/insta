@@ -3,6 +3,7 @@ var router = express.Router();
 const usermodel = require('./users')
 const postmodel = require('./posts')
 const commentmodel = require('./comments')
+const utils = require('../utils/utils')
 var passport = require('passport')
 var localStrategy = require('passport-local');
 const upload = require('./multer');
@@ -22,7 +23,7 @@ router.get('/feed', isloggedin, async function(req, res) {
   const posts = await postmodel.find().populate('user')
 
 
-  res.render('feed', {footer: true,posts,loggedinUser});
+  res.render('feed', {footer: true,posts,loggedinUser,dater:utils.formatRelativeTime});
 });
 router.get("/like/:postId",isloggedin, async function(req,res,next){
   const post = await postmodel.findOne({_id:req.params.postId}) 

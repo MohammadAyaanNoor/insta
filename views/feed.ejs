@@ -78,7 +78,7 @@
               <img class="w-full h-full object-cover" src="/images/uploads/<%= elem.user.profileImage %>" alt="">
             </div>
             <h4 class="text-sm"><%=elem.user.username%></h4>
-            <h6 class="text-xs opacity-30">1d</h6>
+            <h6 class="text-xs opacity-30"><%=dater(new Date(elem.created_at))%></h6>
           </div>
           <div class="w-full h-96 mt-4 bg-sky-100 overflow-hidden">
             <img data-postid="<%=elem.id%>" class="object-cover w-full h-full postimg" src="/images/uploads/<%=elem.image%>" alt="">
