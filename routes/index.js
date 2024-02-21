@@ -3,6 +3,7 @@ var router = express.Router();
 const usermodel = require('./users')
 const postmodel = require('./posts')
 const commentmodel = require('./comments')
+const storymodel = require('./story')
 const utils = require('../utils/utils')
 var passport = require('passport')
 var localStrategy = require('passport-local');
@@ -21,9 +22,20 @@ router.get('/login', function(req, res) {
 router.get('/feed', isloggedin, async function(req, res) {
   var loggedinUser = await usermodel.findOne({username:req.session.passport.user})
   const posts = await postmodel.find().populate('user')
+  let stories = await storymodel.find({ user: { $ne: loggedinUser._id } })
+  .populate("user");
 
+  var uniq = {};
+  var filtered = stories.filter(item => {
+    if(!uniq[item.user._id]){
+      uniq[item.user._id] = "";
+      return true;
+    }
+    else return false;
+  })
 
-  res.render('feed', {footer: true,posts,loggedinUser,dater:utils.formatRelativeTime});
+  console.log(filtered)
+  res.render('feed', {footer: true,posts,loggedinUser,stories: filtered,dater:utils.formatRelativeTime});
 });
 router.get("/like/:postId",isloggedin, async function(req,res,next){
   const post = await postmodel.findOne({_id:req.params.postId}) 
@@ -187,15 +199,26 @@ router.post('/post', isloggedin, upload.single('file'), async function(req, res)
     return res.status(404).send("no files were given")
   }
   const loggedinuser = await usermodel.findOne({username:req.session.passport.user})
-  const post = await postmodel.create({
-    image:req.file.filename,
-    caption:req.body.caption,
-    user:loggedinuser._id
-  })
+  if(req.body.category === 'post'){
 
-  loggedinuser.posts.push(post._id)
+    const post = await postmodel.create({
+      image:req.file.filename,
+      caption:req.body.caption,
+      user:loggedinuser._id
+    })
+  
+    loggedinuser.posts.push(post._id)
+  }else if(req.body.category === "story"){
+    const story = await storymodel.create({
+      story:req.file.filename,
+      user:loggedinuser._id
+    })
+    loggedinuser.stories.push(story._id);
+  }else{
+    res.send("tez mat chalo")
+  }
   await loggedinuser.save()
-  res.redirect('/profile')
+  res.redirect('/feed')
 });
 router.post('/register', function(req, res) {
   var userdata = new usermodel({

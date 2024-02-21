@@ -9,7 +9,12 @@ const storySchema = mongoose.Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  likes:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'user'
   }
+  ]
 })
 
 

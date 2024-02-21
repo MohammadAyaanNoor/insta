@@ -33,7 +33,13 @@ const userSchema = mongoose.Schema({
   saved:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'posts'
-  }]
+  }],
+  stories: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "story" 
+    }
+  ],
 
 })
 userSchema.plugin(plm)
