@@ -9,6 +9,7 @@ var passport = require('passport')
 var localStrategy = require('passport-local');
 const upload = require('./multer');
 passport.use(new localStrategy(usermodel.authenticate()))
+const cron = require('node-cron');
 
 
 router.get('/', function(req, res) {
@@ -20,22 +21,45 @@ router.get('/login', function(req, res) {
 });
 
 router.get('/feed', isloggedin, async function(req, res) {
-  var loggedinUser = await usermodel.findOne({username:req.session.passport.user})
+  var loggedinUser = await usermodel.findOne({username:req.session.passport.user}).populate('following')
   const posts = await postmodel.find().populate('user')
-  let stories = await storymodel.find({ user: { $ne: loggedinUser._id } })
+  const followedUserIds = loggedinUser.following.map(user => user._id)
+  let stories = await storymodel.find({ user: { $ne: loggedinUser._id,$in:followedUserIds} })
   .populate("user");
+  console.log(stories)
 
+  // const uniqueArray = Array.from(new Set(stories.map(obj => obj._id))).map(userID => {
+  //   return stories.find(obj => obj._id === userID);
+  // });
+  // console.log(uniqueArray)
   var uniq = {};
   var filtered = stories.filter(item => {
     if(!uniq[item.user._id]){
-      uniq[item.user._id] = "";
+      uniq[item.user._id] = " ";
       return true;
     }
     else return false;
   })
 
-  console.log(filtered)
   res.render('feed', {footer: true,posts,loggedinUser,stories: filtered,dater:utils.formatRelativeTime});
+});
+router.get('/story/:storyid',isloggedin,async (req, res) => {
+  const story = await storymodel.findOne({_id:req.params.storyid}).populate('user')
+
+res.render('story',{footer:false,story ,dater : utils.formatRelativeTime})
+});
+router.get('/like/:storyid', isloggedin, async (req, res) => {
+  const story = await storymodel.findOne({_id:req.params.storyid}) 
+  const loggedinUser =  await usermodel.findOne({username:req.session.passport.user})
+  
+
+  if(story.likes.indexOf(loggedinUser._id) !== -1){
+    story.likes.splice(story.likes.indexOf(loggedinUser._id),1)
+  }else{
+    story.likes.push(loggedinUser._id)
+  }
+  await story.save()
+  res.json(story)
 });
 router.get("/like/:postId",isloggedin, async function(req,res,next){
   const post = await postmodel.findOne({_id:req.params.postId}) 

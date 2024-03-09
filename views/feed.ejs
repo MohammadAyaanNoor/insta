@@ -19,16 +19,18 @@
         </div>
       </div>
       <%stories.forEach(function(story){%>
-        <div class="circle flex-shrink-0">
-          <div
-            class="gradient w-[18vw] h-[18vw] bg-sky-100 rounded-full bg-gradient-to-r from-purple-700 to-orange-500 flex items-center justify-center">
-            <div class="inner w-[92%] h-[92%] rounded-full overflow-hidden">
-              <img class="w-full h-full object-cover"
-                src="/images/uploads/<%=story.user.profileImage%>"
-                alt="">
+        <a href="/story/<%=story.id%>">
+          <div data-userid="<%=story.user.id%>" class="circle flex-shrink-0">
+            <div
+              class="gradient w-[18vw] h-[18vw] bg-sky-100 rounded-full bg-gradient-to-r from-purple-700 to-orange-500 flex items-center justify-center">
+              <div class="inner w-[92%] h-[92%] rounded-full overflow-hidden">
+                <img class="w-full h-full object-cover"
+                  src="/images/uploads/<%=story.user.profileImage%>"
+                  alt="">
+              </div>
             </div>
           </div>
-        </div>
+        </a>
       <%})%>
       
     </div>
@@ -138,6 +140,7 @@
     }
     
    })
+  
   </script>
 
   <% include ./partials/footer.ejs %>

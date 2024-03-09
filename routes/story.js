@@ -5,7 +5,9 @@ const storySchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "user"
   },
-  story: String,
+  story: {
+    type:String,
+  },
   date: {
     type: Date,
     default: Date.now
@@ -14,7 +16,8 @@ const storySchema = mongoose.Schema({
     type:mongoose.Schema.Types.ObjectId,
     ref:'user'
   }
-  ]
+  ],
+ 
 })
 
 

@@ -5,6 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const expressSession = require('express-session')
 const passport = require('passport')
+const cron = require('node-cron')
+const storymodel = require('./routes/story')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -24,6 +26,15 @@ app.use(passport.initialize())
 app.use(passport.session())
 passport.serializeUser(usersRouter.serializeUser())
 passport.deserializeUser(usersRouter.deserializeUser())
+
+async function deleteExpiredStories() {
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const deletedStories = await storymodel.deleteMany({ date: { $lt: twentyFourHoursAgo} });
+}
+cron.schedule('*/10 * * * *', () => {
+  deleteExpiredStories();
+});
+
 
 app.use(logger('dev'));
 app.use(express.json());

@@ -1,0 +1,60 @@
+<% include ./partials/header.ejs %>
+<div class="main h-screen">
+    <div class=" bg-black timer w-96">
+        <div class="bg-white w-0 progress h-[2px]"></div>
+    </div>
+<div class="top flex items-center justify-between p-4">
+    <div class="left flex items-center gap-2">
+        <div class="pic rounded-full w-12 h-12 overflow-hidden  bg-red-400">
+            <img class="object-cover w-full h-full" src="/images/uploads/<%=story.user.profileImage%>" alt="">
+        </div>
+        <h1 class="text-xl"><%=story.user.username%></h1>
+        <h5 class="mt-1 ml-1"><%=dater(new Date(story.date))%></h5>
+    </div>
+    <a href="/feed"><i class=" quitbtn text-xl ri-arrow-go-back-line"></i></a>
+    
+</div>
+<div class="middle h-[85%] overflow-hidden"><img  class="object-cover h-full w-full" src="/images/uploads/<%=story.story%>" alt=""></div>
+<% if(story.likes.indexOf(story.user.id) === -1){ %>
+<i data-storyid="<%=story.id%>" class="likeicon p-4 text-3xl ri-heart-line"></i>
+<% } else { %>
+    <i data-storyid="<%=story.id%>" class="likeicon p-4 text-3xl ri-heart-fill text-red-500"></i>
+    <% } %>
+</div>
+
+<script>
+    var grow = 0;
+    var progressbar = document.querySelector('.progress')
+    if(grow === 0){
+        setInterval(() => {
+            progressbar.style.width = `${grow++}px`
+            if(progressbar.style.width === '384px'){
+                progressbar.style.width = 0
+                window.location.href = '/feed'
+            }
+        }, 80);
+    }
+    else{
+        grow = 0
+    }
+    var parent = document.querySelector(".main")
+   parent.addEventListener("click",function(dets){
+    if(dets.target.classList.contains("likeicon")){
+      var heartwithborder = parent.querySelector(".likeicon")
+      if (heartwithborder.classList.contains("ri-heart-line")) {
+            heartwithborder.classList.remove("ri-heart-line")
+            heartwithborder.classList.add("ri-heart-fill")
+            heartwithborder.classList.add("text-red-500")
+            // heartwithborder.style.color = "red";
+          }
+          else {
+            heartwithborder.classList.remove("ri-heart-fill")
+            heartwithborder.classList.remove("text-red-500")
+            heartwithborder.classList.add("ri-heart-line")
+          }
+          fetch(`/like/${dets.target.dataset.storyid}`)
+            .then(raw => raw.json())
+            .then(response => {})
+        }})
+</script>
+<% include ./partials/footer.ejs %>
